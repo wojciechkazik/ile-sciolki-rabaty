@@ -1,1 +1,289 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Ściółkowania Rabat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #FFFFFF;
+    }
+    h2 {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    form {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      margin: 0 auto;
+      width: 100%;
+      max-width: none;
+      box-sizing: border-box;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      background-color: #f9f9f9;
+    }
+    input:focus, select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #0f4e55;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      box-sizing: border-box;
+    }
+    button:hover {
+      background-color: #093a40;
+    }
+    .results {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: none;
+    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin: 20px 0;
+    }
+    .wycena-button-fiolet {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 50%;
+      max-width: 500px;
+      min-width: 250px;
+      font-size: clamp(16px, 1.8vw, 24px);
+      background: #8e42ff;
+      color: white !important;
+      text-align: center;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 15px;
+      padding: 20px 25px;
+      line-height: 1.4;
+      transition: all 300ms ease-in-out;
+      box-shadow: 0 4px 10px rgba(142, 66, 255, 0.4);
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    .wycena-button-fiolet:hover {
+      transform: scale(1.07);
+      background: #7a36db;
+      transition: all 200ms ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <h2>Kalkulator Ściółkowania Rabat</h2>
+  <form id="mulchCalculatorForm">
+    <label for="landArea">Powierzchnia rabaty (m²):</label>
+    <input type="number" id="landArea" placeholder="Wpisz powierzchnię rabaty" required>
+
+    <label for="mulchDepth">Grubość warstwy ściółki (cm):</label>
+    <input type="number" id="mulchDepth" placeholder="Wpisz grubość warstwy" required>
+
+    <label for="materialType">Rodzaj materiału ściółkującego:</label>
+    <select id="materialType" onchange="toggleMaterialFields()">
+      <option value="kora">Kora</option>
+      <option value="kamień">Kamień</option>
+    </select>
+
+    <!-- Pole wyboru frakcji dla kory -->
+    <div id="barkFractionField">
+      <label for="barkFraction">Wybierz frakcję kory:</label>
+      <select id="barkFraction">
+        <option value="drobna">Kora sosnowa drobna (0-20mm)</option>
+        <option value="średnia" selected>Kora sosnowa średnia (20-40mm) – rekomendowana</option>
+        <option value="gruba">Kora sosnowa gruba (40-80mm)</option>
+        <option value="sortowana">Kora sosnowa sortowana bardzo gruba</option>
+      </select>
+    </div>
+
+    <!-- Pole wyboru rodzaju kamienia -->
+    <div id="stoneTypeField" style="display: none;">
+      <label for="stoneType">Wybierz rodzaj kamienia:</label>
+      <select id="stoneType">
+        <optgroup label="Granik">
+          <option value="gran_bardzo_drobny">Granik Bardzo drobny (0–8 mm)</option>
+          <option value="gran_drobny">Granik Drobny (8–16 mm)</option>
+          <option value="gran_średni">Granik Średni (16–22 mm)</option>
+          <option value="gran_gruby">Granik Gruby (30–60 mm oraz >60 mm – kruszywo techniczne)</option>
+        </optgroup>
+        <optgroup label="Bazalt">
+          <option value="bazalt_bardzo_drobny">Bazalt Bardzo drobny (0–8 mm)</option>
+          <option value="bazalt_drobny">Bazalt Drobny (8–16 mm)</option>
+          <option value="bazalt_średni">Bazalt Średni (16–22 mm)</option>
+          <option value="bazalt_gruby">Bazalt Gruby (30–60 mm oraz >60 mm – kruszywo techniczne)</option>
+        </optgroup>
+        <optgroup label="Gnejs">
+          <option value="gnejs_bardzo_drobny">Gnejs Bardzo drobny (0–8 mm)</option>
+          <option value="gnejs_drobny">Gnejs Drobny (8–16 mm)</option>
+          <option value="gnejs_średni">Gnejs Średni (16–22 mm)</option>
+          <option value="gnejs_gruby">Gnejs Gruby (30–60 mm oraz >60 mm – kruszywo techniczne)</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <label for="excessPercentage">Dodatkowy zapas materiału (%):</label>
+    <input type="number" id="excessPercentage" placeholder="Wpisz procent nadmiaru" value="0">
+
+    <!-- Pole dla ceny – etykieta zmienia się dynamicznie -->
+    <div id="priceField">
+      <label id="priceLabel" for="priceOption">Koszt kory za m³ (zł):</label>
+      <select id="priceOption" onchange="toggleCustomPriceField()">
+        <!-- Domyślnie dla kory -->
+        <option value="300">Standard (300 zł/m³)</option>
+        <option value="custom">Własna cena</option>
+      </select>
+    </div>
+    <div id="customPriceField" style="display: none;">
+      <label for="customPrice">Wpisz własną cenę:</label>
+      <input type="number" id="customPrice" placeholder="Wpisz cenę">
+    </div>
+
+    <button type="button" onclick="calculateMulch()">Oblicz</button>
+  </form>
+
+  <div id="mulchResult" class="results" style="display: none;"></div>
+
+  <script>
+    function toggleMaterialFields() {
+      const material = document.getElementById('materialType').value;
+      if(material === 'kora'){
+        document.getElementById('barkFractionField').style.display = 'block';
+        document.getElementById('stoneTypeField').style.display = 'none';
+        document.getElementById('priceLabel').innerText = "Koszt kory za m³ (zł):";
+        document.getElementById('priceOption').innerHTML = 
+          `<option value="300">Standard (300 zł/m³)</option>
+           <option value="custom">Własna cena</option>`;
+      } else {
+        document.getElementById('barkFractionField').style.display = 'none';
+        document.getElementById('stoneTypeField').style.display = 'block';
+        document.getElementById('priceLabel').innerText = "Koszt kamienia za tonę (zł):";
+        document.getElementById('priceOption').innerHTML = 
+          `<option value="100">Standard (100 zł/tona)</option>
+           <option value="200">Premium (200 zł/tona)</option>
+           <option value="custom">Własna cena</option>`;
+      }
+      toggleCustomPriceField();
+    }
+
+    function toggleCustomPriceField() {
+      const priceOption = document.getElementById('priceOption').value;
+      document.getElementById('customPriceField').style.display = priceOption === "custom" ? "block" : "none";
+    }
+
+    function calculateMulch() {
+      // Pobranie danych wejściowych
+      const landArea = parseFloat(document.getElementById('landArea').value);
+      const mulchDepth = parseFloat(document.getElementById('mulchDepth').value) / 100; // cm -> m
+      if (isNaN(landArea) || isNaN(mulchDepth)) {
+        alert("Proszę wypełnić pola dotyczące powierzchni i grubości warstwy.");
+        return;
+      }
+      
+      // Obliczenie podstawowej objętości materiału
+      const baseVolume = landArea * mulchDepth;
+      
+      // Uwzględnienie dodatkowego zapasu
+      const excessPercentage = parseFloat(document.getElementById('excessPercentage').value);
+      const excessCoefficient = isNaN(excessPercentage) ? 0 : excessPercentage / 100;
+      const finalVolume = baseVolume * (1 + excessCoefficient);
+      
+      // Pobranie ceny
+      let priceOption = document.getElementById('priceOption').value;
+      let materialPrice;
+      if (priceOption === "custom") {
+        materialPrice = parseFloat(document.getElementById('customPrice').value);
+        if (isNaN(materialPrice)) {
+          alert("Proszę podać własną cenę.");
+          return;
+        }
+      } else {
+        materialPrice = parseFloat(priceOption);
+      }
+      
+      // Sprawdzenie rodzaju materiału
+      const material = document.getElementById('materialType').value;
+      let resultHTML = `<p style="margin-bottom:20px;"><strong>Objętość materiału:</strong> ${landArea} m² × ${(mulchDepth).toFixed(2)} m = ${baseVolume.toFixed(2)} m³</p>
+                         <p style="margin-bottom:20px;"><strong>Objętość materiału z nadmiarem:</strong> ${baseVolume.toFixed(2)} m³ × (1 + ${excessCoefficient.toFixed(2)}) = ${finalVolume.toFixed(2)} m³</p>`;
+      
+      if(material === "kamień"){
+        // Stała gęstość kamienia: 2 t/m³
+        const density = 2;
+        // Obliczenie wagi kamienia
+        const weight = finalVolume * density;
+        // Obliczenie kosztu
+        const cost = weight * materialPrice;
+        resultHTML += `<p style="margin-bottom:20px;"><strong>Waga materiału:</strong> ${finalVolume.toFixed(2)} m³ × ${density} t/m³ = ${weight.toFixed(2)} t <span>👈 tyle kamienia potrzebujesz</span></p>
+                       <p style="margin-bottom:20px;"><strong>Koszt materiału:</strong> ${weight.toFixed(2)} t × ${materialPrice.toFixed(2)} zł/tona = ${cost.toFixed(2)} zł <span>👈 tyle będzie kosztować kamień</span></p>`;
+      } else {
+        // Dla kory, wynik podawany jest jako objętość
+        const cost = finalVolume * materialPrice;
+        resultHTML += `<p style="margin-bottom:20px;"><strong>Objętność materiału:</strong> ${finalVolume.toFixed(2)} m³ <span>👈 tyle kory potrzebujesz</span></p>
+                       <p style="margin-bottom:20px;"><strong>Koszt materiału:</strong> ${finalVolume.toFixed(2)} m³ × ${materialPrice.toFixed(2)} zł/m³ = ${cost.toFixed(2)} zł <span>👈 tyle będzie kosztować kora</span></p>`;
+      }
+      
+      // Wyświetlenie wyniku
+      document.getElementById('mulchResult').innerHTML = resultHTML;
+      document.getElementById('mulchResult').style.display = 'block';
+      
+      // Dodanie guzika z eBookiem, jeśli jeszcze nie został dodany
+      if (!document.getElementById('ebookOffer')) {
+        const ebookOfferHTML = 
+          `<div class="button-container" id="ebookOffer">
+            <a href="https://wytwornia-zieleni.pl/rabaty-ogrodowe-gotowe-projekty" target="_blank" class="wycena-button-fiolet">
+              Plan jesz ogród🌲?<br>Sprawdź gotowe projekty rabat ogrodowych!
+            </a>
+          </div>
+          <p id="ebookInfo">Z kodem "BLOG-WZ" zniżka na pełną wersję ebooka 🌿✨</p>`;
+        document.getElementById('mulchResult').innerHTML += ebookOfferHTML;
+      }
+    }
+  </script>
+
+  <!-- Kod do dynamicznej zmiany wysokości iframe -->
+  <script>
+    function sendHeight() {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ height: height }, "*");
+    }
+    window.addEventListener("load", sendHeight);
+    window.addEventListener("resize", sendHeight);
+  </script>
+</body>
+</html>
 
