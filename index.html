@@ -124,10 +124,10 @@
     <!-- Pole wyboru frakcji dla kory -->
     <div id="barkFractionField">
       <label for="barkFraction">Wybierz frakcję kory:</label>
-      <select id="barkFraction">
-        <option value="drobna">Kora sosnowa drobna (0-20mm)</option>
-        <option value="średnia" selected>Kora sosnowa średnia (20-40mm) – rekomendowana</option>
-        <option value="gruba">Kora sosnowa gruba (40-80mm)</option>
+      <select id="barkFraction" onchange="updatePriceOption()">
+        <option value="drobna">Kora sosnowa drobna (0–20 mm)</option>
+        <option value="średnia" selected>Kora sosnowa średnia (20–40 mm) – rekomendowana</option>
+        <option value="gruba">Kora sosnowa gruba (40–80 mm)</option>
         <option value="sortowana">Kora sosnowa sortowana bardzo gruba</option>
       </select>
     </div>
@@ -135,7 +135,7 @@
     <!-- Pole wyboru rodzaju kamienia -->
     <div id="stoneTypeField" style="display: none;">
       <label for="stoneType">Wybierz rodzaj kamienia:</label>
-      <select id="stoneType">
+      <select id="stoneType" onchange="updatePriceOption()">
         <optgroup label="Granik">
           <option value="gran_bardzo_drobny">Granik Bardzo drobny (0–8 mm)</option>
           <option value="gran_drobny">Granik Drobny (8–16 mm)</option>
@@ -160,13 +160,11 @@
     <label for="excessPercentage">Dodatkowy zapas materiału (%):</label>
     <input type="number" id="excessPercentage" placeholder="Wpisz procent nadmiaru" value="0">
 
-    <!-- Pole dla ceny – etykieta zmienia się dynamicznie -->
+    <!-- Pole dla ceny – dynamicznie aktualizowane -->
     <div id="priceField">
       <label id="priceLabel" for="priceOption">Koszt kory za m³ (zł):</label>
       <select id="priceOption" onchange="toggleCustomPriceField()">
-        <!-- Domyślnie dla kory -->
-        <option value="300">Standard (300 zł/m³)</option>
-        <option value="custom">Własna cena</option>
+        <!-- Opcje zostaną ustawione dynamicznie -->
       </select>
     </div>
     <div id="customPriceField" style="display: none;">
@@ -180,25 +178,61 @@
   <div id="mulchResult" class="results" style="display: none;"></div>
 
   <script>
+    // Aktualizacja opcji ceny w zależności od wybranych parametrów
+    function updatePriceOption() {
+      const material = document.getElementById('materialType').value;
+      let priceHTML = "";
+      if (material === "kora") {
+        const barkFraction = document.getElementById('barkFraction').value;
+        let standardPrice;
+        if (barkFraction === "drobna") {
+          standardPrice = 260;
+        } else if (barkFraction === "średnia") {
+          standardPrice = 325;
+        } else if (barkFraction === "gruba") {
+          standardPrice = 520;
+        } else if (barkFraction === "sortowana") {
+          standardPrice = null;
+        }
+        if (standardPrice !== null && standardPrice !== undefined) {
+          priceHTML = `<option value="${standardPrice}">Standard (${standardPrice} zł/m³)</option>
+                       <option value="custom">Własna cena</option>`;
+        } else {
+          priceHTML = `<option value="custom">Własna cena</option>`;
+        }
+      } else { // kamień
+        const stoneType = document.getElementById('stoneType').value;
+        let standardPrice;
+        if (stoneType.startsWith("gran")) {
+          standardPrice = 100;
+        } else if (stoneType.startsWith("bazalt")) {
+          standardPrice = 120;
+        } else if (stoneType.startsWith("gnejs")) {
+          standardPrice = 160;
+        }
+        if (standardPrice !== null && standardPrice !== undefined) {
+          priceHTML = `<option value="${standardPrice}">Standard (${standardPrice} zł/tona)</option>
+                       <option value="custom">Własna cena</option>`;
+        } else {
+          priceHTML = `<option value="custom">Własna cena</option>`;
+        }
+      }
+      document.getElementById('priceOption').innerHTML = priceHTML;
+      toggleCustomPriceField();
+    }
+
     function toggleMaterialFields() {
       const material = document.getElementById('materialType').value;
       if(material === 'kora'){
         document.getElementById('barkFractionField').style.display = 'block';
         document.getElementById('stoneTypeField').style.display = 'none';
         document.getElementById('priceLabel').innerText = "Koszt kory za m³ (zł):";
-        document.getElementById('priceOption').innerHTML = 
-          `<option value="300">Standard (300 zł/m³)</option>
-           <option value="custom">Własna cena</option>`;
       } else {
         document.getElementById('barkFractionField').style.display = 'none';
         document.getElementById('stoneTypeField').style.display = 'block';
         document.getElementById('priceLabel').innerText = "Koszt kamienia za tonę (zł):";
-        document.getElementById('priceOption').innerHTML = 
-          `<option value="100">Standard (100 zł/tona)</option>
-           <option value="200">Premium (200 zł/tona)</option>
-           <option value="custom">Własna cena</option>`;
       }
-      toggleCustomPriceField();
+      updatePriceOption();
     }
 
     function toggleCustomPriceField() {
@@ -207,7 +241,6 @@
     }
 
     function calculateMulch() {
-      // Pobranie danych wejściowych
       const landArea = parseFloat(document.getElementById('landArea').value);
       const mulchDepth = parseFloat(document.getElementById('mulchDepth').value) / 100; // cm -> m
       if (isNaN(landArea) || isNaN(mulchDepth)) {
@@ -236,32 +269,29 @@
         materialPrice = parseFloat(priceOption);
       }
       
-      // Sprawdzenie rodzaju materiału
       const material = document.getElementById('materialType').value;
-      let resultHTML = `<p style="margin-bottom:20px;"><strong>Objętość materiału:</strong> ${landArea} m² × ${(mulchDepth).toFixed(2)} m = ${baseVolume.toFixed(2)} m³</p>
+      let resultHTML = `<p style="margin-bottom:20px;"><strong>Objętość materiału:</strong> ${landArea} m² × ${mulchDepth.toFixed(2)} m = ${baseVolume.toFixed(2)} m³</p>
                          <p style="margin-bottom:20px;"><strong>Objętość materiału z nadmiarem:</strong> ${baseVolume.toFixed(2)} m³ × (1 + ${excessCoefficient.toFixed(2)}) = ${finalVolume.toFixed(2)} m³</p>`;
       
       if(material === "kamień"){
         // Stała gęstość kamienia: 2 t/m³
         const density = 2;
-        // Obliczenie wagi kamienia
         const weight = finalVolume * density;
-        // Obliczenie kosztu
         const cost = weight * materialPrice;
         resultHTML += `<p style="margin-bottom:20px;"><strong>Waga materiału:</strong> ${finalVolume.toFixed(2)} m³ × ${density} t/m³ = ${weight.toFixed(2)} t <span>👈 tyle kamienia potrzebujesz</span></p>
                        <p style="margin-bottom:20px;"><strong>Koszt materiału:</strong> ${weight.toFixed(2)} t × ${materialPrice.toFixed(2)} zł/tona = ${cost.toFixed(2)} zł <span>👈 tyle będzie kosztować kamień</span></p>`;
       } else {
-        // Dla kory, wynik podawany jest jako objętość
         const cost = finalVolume * materialPrice;
         resultHTML += `<p style="margin-bottom:20px;"><strong>Objętność materiału:</strong> ${finalVolume.toFixed(2)} m³ <span>👈 tyle kory potrzebujesz</span></p>
                        <p style="margin-bottom:20px;"><strong>Koszt materiału:</strong> ${finalVolume.toFixed(2)} m³ × ${materialPrice.toFixed(2)} zł/m³ = ${cost.toFixed(2)} zł <span>👈 tyle będzie kosztować kora</span></p>`;
       }
       
-      // Wyświetlenie wyniku
+      // Dodanie informacji o zastosowanej cenie (standardowej lub własnej)
+      resultHTML += `<p style="margin-bottom:20px;"><strong>Cena użyta:</strong> ${document.getElementById('priceOption').value !== "custom" ? "Standardowa (" + materialPrice.toFixed(2) + (material==="kamień" ? " zł/tona" : " zł/m³") + ")" : "Własna (" + materialPrice.toFixed(2) + (material==="kamień" ? " zł/tona" : " zł/m³") + ")"}</p>`;
+      
       document.getElementById('mulchResult').innerHTML = resultHTML;
       document.getElementById('mulchResult').style.display = 'block';
       
-      // Dodanie guzika z eBookiem, jeśli jeszcze nie został dodany
       if (!document.getElementById('ebookOffer')) {
         const ebookOfferHTML = 
           `<div class="button-container" id="ebookOffer">
@@ -273,6 +303,13 @@
         document.getElementById('mulchResult').innerHTML += ebookOfferHTML;
       }
     }
+    
+    // Dodajemy event listenery na zmianę wyboru frakcji kory i rodzaju kamienia
+    document.getElementById('barkFraction').addEventListener('change', updatePriceOption);
+    document.getElementById('stoneType').addEventListener('change', updatePriceOption);
+    
+    // Inicjalizacja opcji ceny przy załadowaniu
+    window.addEventListener('load', updatePriceOption);
   </script>
 
   <!-- Kod do dynamicznej zmiany wysokości iframe -->
@@ -286,4 +323,3 @@
   </script>
 </body>
 </html>
-
