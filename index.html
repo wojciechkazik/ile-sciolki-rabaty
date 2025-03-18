@@ -10,6 +10,7 @@
       margin: 0;
       padding: 20px;
       background-color: #FFFFFF;
+      overflow-x: hidden;
     }
     h2 {
       font-size: 24px;
@@ -109,80 +110,127 @@
 <body>
   <h2>Kalkulator Ściółkowania Rabat</h2>
   <form id="mulchCalculatorForm">
+    <!-- Powierzchnia rabaty -->
     <label for="landArea">Powierzchnia rabaty (m²):</label>
     <input type="number" id="landArea" placeholder="Wpisz powierzchnię rabaty" required>
-
-    <label for="mulchDepth">Grubość warstwy ściółki (cm):</label>
-    <input type="number" id="mulchDepth" placeholder="Wpisz grubość warstwy" required>
-
+    
+    <!-- Wybór materiału -->
     <label for="materialType">Rodzaj materiału ściółkującego:</label>
-    <select id="materialType" onchange="toggleMaterialFields()">
-      <option value="kora">Kora</option>
-      <option value="kamień">Kamień</option>
+    <select id="materialType" onchange="onMaterialChange()">
+      <option value="kora">Kora sosnowa</option>
+      <option value="kamień">Kamień ozdobny</option>
     </select>
-
-    <!-- Pole wyboru frakcji dla kory -->
-    <div id="barkFractionField">
+    
+    <!-- Pola dla kory -->
+    <div id="barkFields">
       <label for="barkFraction">Wybierz frakcję kory:</label>
-      <select id="barkFraction" onchange="updatePriceOption()">
+      <select id="barkFraction" onchange="updatePriceOption(); updateDefaultThickness()">
         <option value="drobna">Kora sosnowa drobna (0–20 mm)</option>
-        <option value="średnia" selected>Kora sosnowa średnia (20–40 mm) – rekomendowana</option>
-        <option value="gruba">Kora sosnowa gruba (40–80 mm)</option>
+        <option value="średnia" selected>Kora sosnowa średnia (20–40 mm)- najczęściej używana</option>
+        <option value="gruba">Kora sosnowa gruba (40–80 mm)- najczęściej używana</option>
         <option value="sortowana">Kora sosnowa sortowana bardzo gruba</option>
       </select>
-    </div>
-
-    <!-- Pole wyboru rodzaju kamienia -->
-    <div id="stoneTypeField" style="display: none;">
-      <label for="stoneType">Wybierz rodzaj kamienia:</label>
-      <select id="stoneType" onchange="updatePriceOption()">
-        <optgroup label="Granik">
-          <option value="gran_bardzo_drobny">Granik Bardzo drobny (0–8 mm)</option>
-          <option value="gran_drobny">Granik Drobny (8–16 mm)</option>
-          <option value="gran_średni">Granik Średni (16–22 mm)</option>
-          <option value="gran_gruby">Granik Gruby (30–60 mm oraz >60 mm – kruszywo techniczne)</option>
-        </optgroup>
-        <optgroup label="Bazalt">
-          <option value="bazalt_bardzo_drobny">Bazalt Bardzo drobny (0–8 mm)</option>
-          <option value="bazalt_drobny">Bazalt Drobny (8–16 mm)</option>
-          <option value="bazalt_średni">Bazalt Średni (16–22 mm)</option>
-          <option value="bazalt_gruby">Bazalt Gruby (30–60 mm oraz >60 mm – kruszywo techniczne)</option>
-        </optgroup>
-        <optgroup label="Gnejs">
-          <option value="gnejs_bardzo_drobny">Gnejs Bardzo drobny (0–8 mm)</option>
-          <option value="gnejs_drobny">Gnejs Drobny (8–16 mm)</option>
-          <option value="gnejs_średni">Gnejs Średni (16–22 mm)</option>
-          <option value="gnejs_gruby">Gnejs Gruby (30–60 mm oraz >60 mm – kruszywo techniczne)</option>
-        </optgroup>
+      
+      <!-- Pole wyboru opakowania -->
+      <label for="packagingOption">Wybierz rodzaj opakowania:</label>
+      <select id="packagingOption">
+        <option value="paleta" selected>Paleta (zakup hurtowy)</option>
+        <option value="worek">Na worki 80l (+20-30% ceny)</option>
       </select>
     </div>
-
+    
+    <!-- Pola dla kamienia -->
+    <div id="stoneFields" style="display:none;">
+      <label for="stoneType">Wybierz rodzaj kamienia:</label>
+      <select id="stoneType" onchange="updatePriceOption(); updateDefaultThickness()">
+         <option value="gran">Granit (230 zł/t)</option>
+         <option value="bazalt">Bazalt (200 zł/t)</option>
+         <option value="wapien">Wapień (380 zł/t)</option>
+         <option value="otoczak">Otoczak rzeczny (150 zł/t)</option>
+         <option value="gnejs">Gnejs (400 zł/t)</option>
+         <option value="lup">Łupek (400 zł/t)</option>
+         <option value="serpentynit">Serpentynit (280 zł/t)</option>
+         <option value="bialaMarianna">Biała Marianna (380 zł/t)</option>
+         <option value="egzotyczne">Egzotyczne otoczaki i grysy (1500 zł/t)</option>
+      </select>
+      
+      <label for="stoneFraction">Wybierz frakcję kamienia:</label>
+      <select id="stoneFraction" onchange="updateDefaultThickness()">
+         <option value="bardzo_drobny">Bardzo drobny (0–8 mm)</option>
+         <option value="drobny">Drobny (8–16 mm)</option>
+         <option value="średni" selected>Średni (16–22 mm)</option>
+         <option value="gruby">Gruby (30–60 mm)</option>
+         <option value="bardzo_gruby">Bardzo gruby (>60 mm)</option>
+      </select>
+    </div>
+    
+    <!-- Pole grubości warstwy -->
+    <label for="thicknessInput">Grubość warstwy (cm):</label>
+    <input type="number" id="thicknessInput" placeholder="Grubość warstwy w cm">
+    
+    <!-- Dodatkowy zapas materiału -->
     <label for="excessPercentage">Dodatkowy zapas materiału (%):</label>
     <input type="number" id="excessPercentage" placeholder="Wpisz procent nadmiaru" value="0">
-
+    
     <!-- Pole dla ceny – dynamicznie aktualizowane -->
     <div id="priceField">
-      <label id="priceLabel" for="priceOption">Koszt kory za m³ (zł):</label>
+      <label id="priceLabel" for="priceOption">Cena/m³ (zł):</label>
       <select id="priceOption" onchange="toggleCustomPriceField()">
-        <!-- Opcje zostaną ustawione dynamicznie -->
+        <!-- Opcje będą ustawiane dynamicznie -->
       </select>
     </div>
     <div id="customPriceField" style="display: none;">
       <label for="customPrice">Wpisz własną cenę:</label>
       <input type="number" id="customPrice" placeholder="Wpisz cenę">
     </div>
-
+    
     <button type="button" onclick="calculateMulch()">Oblicz</button>
   </form>
-
+  
   <div id="mulchResult" class="results" style="display: none;"></div>
-
+  
   <script>
-    // Aktualizacja opcji ceny w zależności od wybranych parametrów
+    // Aktualizacja widoczności pól w zależności od wybranego materiału
+    function onMaterialChange() {
+      const material = document.getElementById('materialType').value;
+      if(material === 'kora'){
+        document.getElementById('barkFields').style.display = 'block';
+        document.getElementById('stoneFields').style.display = 'none';
+        document.getElementById('priceLabel').innerText = "Cena/m³ (zł):";
+        updateDefaultThickness(); // domyślnie 5 cm dla kory
+      } else {
+        document.getElementById('barkFields').style.display = 'none';
+        document.getElementById('stoneFields').style.display = 'block';
+        document.getElementById('priceLabel').innerText = "Cena/t (zł):";
+        updateDefaultThickness();
+      }
+      updatePriceOption();
+    }
+    
+    // Ustawienie domyślnej grubości w zależności od materiału i frakcji
+    function updateDefaultThickness() {
+      const material = document.getElementById('materialType').value;
+      let defaultThickness = 5; // dla kory
+      if(material === 'kamień'){
+        const stoneFraction = document.getElementById('stoneFraction').value;
+        if(stoneFraction === "bardzo_drobny"){
+          defaultThickness = 3;
+        } else if(stoneFraction === "drobny" || stoneFraction === "średni"){
+          defaultThickness = 4;
+        } else if(stoneFraction === "gruby"){
+          defaultThickness = 6;
+        } else if(stoneFraction === "bardzo_gruby"){
+          defaultThickness = 8;
+        }
+      }
+      document.getElementById('thicknessInput').value = defaultThickness;
+    }
+    
+    // Aktualizacja opcji ceny w zależności od wybranego materiału
     function updatePriceOption() {
       const material = document.getElementById('materialType').value;
       let priceHTML = "";
-      if (material === "kora") {
+      if(material === "kora") {
         const barkFraction = document.getElementById('barkFraction').value;
         let standardPrice;
         if (barkFraction === "drobna") {
@@ -195,7 +243,7 @@
           standardPrice = null;
         }
         if (standardPrice !== null && standardPrice !== undefined) {
-          priceHTML = `<option value="${standardPrice}">Standard (${standardPrice} zł/m³)</option>
+          priceHTML = `<option value="${standardPrice}">${standardPrice}</option>
                        <option value="custom">Własna cena</option>`;
         } else {
           priceHTML = `<option value="custom">Własna cena</option>`;
@@ -203,15 +251,27 @@
       } else { // kamień
         const stoneType = document.getElementById('stoneType').value;
         let standardPrice;
-        if (stoneType.startsWith("gran")) {
-          standardPrice = 100;
-        } else if (stoneType.startsWith("bazalt")) {
-          standardPrice = 120;
-        } else if (stoneType.startsWith("gnejs")) {
-          standardPrice = 160;
+        if(stoneType === "gran"){
+          standardPrice = 230;
+        } else if(stoneType === "bazalt"){
+          standardPrice = 200;
+        } else if(stoneType === "wapien"){
+          standardPrice = 380;
+        } else if(stoneType === "otoczak"){
+          standardPrice = 150;
+        } else if(stoneType === "gnejs"){
+          standardPrice = 400;
+        } else if(stoneType === "lup"){
+          standardPrice = 400;
+        } else if(stoneType === "serpentynit"){
+          standardPrice = 280;
+        } else if(stoneType === "bialaMarianna"){
+          standardPrice = 380;
+        } else if(stoneType === "egzotyczne"){
+          standardPrice = 1500;
         }
         if (standardPrice !== null && standardPrice !== undefined) {
-          priceHTML = `<option value="${standardPrice}">Standard (${standardPrice} zł/tona)</option>
+          priceHTML = `<option value="${standardPrice}">${standardPrice}</option>
                        <option value="custom">Własna cena</option>`;
         } else {
           priceHTML = `<option value="custom">Własna cena</option>`;
@@ -220,74 +280,99 @@
       document.getElementById('priceOption').innerHTML = priceHTML;
       toggleCustomPriceField();
     }
-
-    function toggleMaterialFields() {
-      const material = document.getElementById('materialType').value;
-      if(material === 'kora'){
-        document.getElementById('barkFractionField').style.display = 'block';
-        document.getElementById('stoneTypeField').style.display = 'none';
-        document.getElementById('priceLabel').innerText = "Koszt kory za m³ (zł):";
-      } else {
-        document.getElementById('barkFractionField').style.display = 'none';
-        document.getElementById('stoneTypeField').style.display = 'block';
-        document.getElementById('priceLabel').innerText = "Koszt kamienia za tonę (zł):";
-      }
-      updatePriceOption();
-    }
-
+    
+    // Pokazanie pola własnej ceny, gdy użytkownik wybierze opcję "Własna cena"
     function toggleCustomPriceField() {
       const priceOption = document.getElementById('priceOption').value;
       document.getElementById('customPriceField').style.display = priceOption === "custom" ? "block" : "none";
     }
-
+    
+    // Główna funkcja obliczająca wyniki
     function calculateMulch() {
       const landArea = parseFloat(document.getElementById('landArea').value);
-      const mulchDepth = parseFloat(document.getElementById('mulchDepth').value) / 100; // cm -> m
-      if (isNaN(landArea) || isNaN(mulchDepth)) {
-        alert("Proszę wypełnić pola dotyczące powierzchni i grubości warstwy.");
+      if (isNaN(landArea)) {
+        alert("Proszę wypełnić pole dotyczące powierzchni rabaty.");
         return;
       }
       
-      // Obliczenie podstawowej objętości materiału
-      const baseVolume = landArea * mulchDepth;
+      // Pobranie grubości warstwy (wartość z pola input)
+      let thicknessCm = parseFloat(document.getElementById('thicknessInput').value);
+      if(isNaN(thicknessCm) || thicknessCm <= 0){
+        alert("Proszę podać poprawną grubość warstwy.");
+        return;
+      }
+      const thickness = thicknessCm / 100;
       
-      // Uwzględnienie dodatkowego zapasu
+      // Obliczenie objętości materiału
+      const baseVolume = landArea * thickness;
       const excessPercentage = parseFloat(document.getElementById('excessPercentage').value);
       const excessCoefficient = isNaN(excessPercentage) ? 0 : excessPercentage / 100;
       const finalVolume = baseVolume * (1 + excessCoefficient);
       
-      // Pobranie ceny
-      let priceOption = document.getElementById('priceOption').value;
       let materialPrice;
-      if (priceOption === "custom") {
+      let priceOptionVal = document.getElementById('priceOption').value;
+      if(priceOptionVal === "custom"){
         materialPrice = parseFloat(document.getElementById('customPrice').value);
-        if (isNaN(materialPrice)) {
+        if(isNaN(materialPrice)){
           alert("Proszę podać własną cenę.");
           return;
         }
       } else {
-        materialPrice = parseFloat(priceOption);
+        materialPrice = parseFloat(priceOptionVal);
       }
       
       const material = document.getElementById('materialType').value;
-      let resultHTML = `<p style="margin-bottom:20px;"><strong>Objętość materiału:</strong> ${landArea} m² × ${mulchDepth.toFixed(2)} m = ${baseVolume.toFixed(2)} m³</p>
-                         <p style="margin-bottom:20px;"><strong>Objętość materiału z nadmiarem:</strong> ${baseVolume.toFixed(2)} m³ × (1 + ${excessCoefficient.toFixed(2)}) = ${finalVolume.toFixed(2)} m³</p>`;
+      let resultHTML = `<p><strong>Powierzchnia rabaty:</strong> ${landArea} m²</p>
+                        <p><strong>Grubość warstwy:</strong> ${thicknessCm.toFixed(2)} cm</p>
+                        <p><strong>Objętość materiału:</strong> ${landArea} m² × ${thickness.toFixed(2)} m = ${baseVolume.toFixed(2)} m³</p>
+                        <p><strong>Objętość z nadmiarem:</strong> ${baseVolume.toFixed(2)} m³ × (1 + ${excessCoefficient.toFixed(2)}) = ${finalVolume.toFixed(2)} m³</p>`;
       
-      if(material === "kamień"){
-        // Stała gęstość kamienia: 2 t/m³
-        const density = 2;
+      if(material === "kora"){
+        // Dla kory – uwzględnienie opakowania
+        const packaging = document.getElementById('packagingOption').value;
+        let adjustedPrice = materialPrice;
+        if(packaging === "worek"){
+          adjustedPrice = materialPrice * 1.2;
+        }
+        const cost = finalVolume * adjustedPrice;
+        let bagInfo = "";
+        if(packaging === "worek"){
+          const numberOfBags = finalVolume / 0.08;
+          bagInfo = `<p><strong>Liczba worków 80l:</strong> ${numberOfBags.toFixed(0)}</p>`;
+        }
+        resultHTML += `<p><strong>Objętność kory:</strong> ${finalVolume.toFixed(2)} m³</p>
+                       <p><strong>Koszt kory:</strong> ${finalVolume.toFixed(2)} m³ × ${adjustedPrice.toFixed(2)} zł = ${cost.toFixed(2)} zł</p>
+                       ${bagInfo}`;
+      } else {
+        // Dla kamienia – przeliczanie objętości na wagę przy użyciu gęstości
+        let density = 2;
+        const stoneType = document.getElementById('stoneType').value;
+        if(stoneType === "gran"){
+          density = 1.5;
+        } else if(stoneType === "bazalt"){
+          density = 1.9;
+        } else if(stoneType === "wapien"){
+          density = 1.7;
+        } else if(stoneType === "otoczak"){
+          density = 1.7;
+        } else if(stoneType === "gnejs"){
+          density = 1.8;
+        } else if(stoneType === "lup"){
+          density = 1.7;
+        } else if(stoneType === "serpentynit"){
+          density = 1.7;
+        } else if(stoneType === "bialaMarianna"){
+          density = 1.8;
+        } else if(stoneType === "egzotyczne"){
+          density = 1.8;
+        }
         const weight = finalVolume * density;
         const cost = weight * materialPrice;
-        resultHTML += `<p style="margin-bottom:20px;"><strong>Waga materiału:</strong> ${finalVolume.toFixed(2)} m³ × ${density} t/m³ = ${weight.toFixed(2)} t <span>👈 tyle kamienia potrzebujesz</span></p>
-                       <p style="margin-bottom:20px;"><strong>Koszt materiału:</strong> ${weight.toFixed(2)} t × ${materialPrice.toFixed(2)} zł/tona = ${cost.toFixed(2)} zł <span>👈 tyle będzie kosztować kamień</span></p>`;
-      } else {
-        const cost = finalVolume * materialPrice;
-        resultHTML += `<p style="margin-bottom:20px;"><strong>Objętność materiału:</strong> ${finalVolume.toFixed(2)} m³ <span>👈 tyle kory potrzebujesz</span></p>
-                       <p style="margin-bottom:20px;"><strong>Koszt materiału:</strong> ${finalVolume.toFixed(2)} m³ × ${materialPrice.toFixed(2)} zł/m³ = ${cost.toFixed(2)} zł <span>👈 tyle będzie kosztować kora</span></p>`;
+        resultHTML += `<p><strong>Waga kamienia:</strong> ${finalVolume.toFixed(2)} m³ × ${density} t/m³ = ${weight.toFixed(2)} t</p>
+                       <p><strong>Koszt kamienia:</strong> ${weight.toFixed(2)} t × ${materialPrice.toFixed(2)} zł = ${cost.toFixed(2)} zł</p>`;
       }
       
-      // Dodanie informacji o zastosowanej cenie (standardowej lub własnej)
-      resultHTML += `<p style="margin-bottom:20px;"><strong>Cena użyta:</strong> ${document.getElementById('priceOption').value !== "custom" ? "Standardowa (" + materialPrice.toFixed(2) + (material==="kamień" ? " zł/tona" : " zł/m³") + ")" : "Własna (" + materialPrice.toFixed(2) + (material==="kamień" ? " zł/tona" : " zł/m³") + ")"}</p>`;
+      // Usunięto wyświetlanie informacji o użytej cenie
       
       document.getElementById('mulchResult').innerHTML = resultHTML;
       document.getElementById('mulchResult').style.display = 'block';
@@ -296,7 +381,7 @@
         const ebookOfferHTML = 
           `<div class="button-container" id="ebookOffer">
             <a href="https://wytwornia-zieleni.pl/rabaty-ogrodowe-gotowe-projekty" target="_blank" class="wycena-button-fiolet">
-              Plan jesz ogród🌲?<br>Sprawdź gotowe projekty rabat ogrodowych!
+              Planujesz ogród🌲?<br>Sprawdź gotowe projekty rabat ogrodowych!
             </a>
           </div>
           <p id="ebookInfo">Z kodem "BLOG-WZ" zniżka na pełną wersję ebooka 🌿✨</p>`;
@@ -304,15 +389,25 @@
       }
     }
     
-    // Dodajemy event listenery na zmianę wyboru frakcji kory i rodzaju kamienia
-    document.getElementById('barkFraction').addEventListener('change', updatePriceOption);
-    document.getElementById('stoneType').addEventListener('change', updatePriceOption);
-    
-    // Inicjalizacja opcji ceny przy załadowaniu
-    window.addEventListener('load', updatePriceOption);
+    // Nasłuchiwanie zmian w polach
+    document.getElementById('barkFraction').addEventListener('change', function(){
+      updatePriceOption();
+      updateDefaultThickness();
+    });
+    document.getElementById('stoneType').addEventListener('change', function(){
+      updatePriceOption();
+      updateDefaultThickness();
+    });
+    document.getElementById('stoneFraction').addEventListener('change', function(){
+      updateDefaultThickness();
+    });
+    window.addEventListener('load', function(){
+      onMaterialChange();
+      updatePriceOption();
+    });
   </script>
-
-  <!-- Kod do dynamicznej zmiany wysokości iframe -->
+  
+  <!-- Skrypt do dynamicznej zmiany wysokości iframe -->
   <script>
     function sendHeight() {
       const height = document.body.scrollHeight;
