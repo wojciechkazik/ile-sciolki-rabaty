@@ -340,8 +340,8 @@
           const numberOfBags = finalVolume / 0.08;
           bagInfo = `<p><strong>Liczba worków 80l:</strong> ${numberOfBags.toFixed(0)}</p>`;
         }
-        resultHTML += `<p><strong>Objętność kory:</strong> ${finalVolume.toFixed(2)} m³</p>
-                       <p><strong>Koszt kory:</strong> ${finalVolume.toFixed(2)} m³ × ${adjustedPrice.toFixed(2)} zł = ${cost.toFixed(2)} zł</p>
+        resultHTML += `<p><strong>👉Ilość kory do kupienia:</strong> ${finalVolume.toFixed(2)} m³</p>
+                       <p><strong>👉Koszt kory:</strong> ${finalVolume.toFixed(2)} m³ × ${adjustedPrice.toFixed(2)} zł = ${cost.toFixed(2)} zł</p>
                        ${bagInfo}`;
       } else {
         // Dla kamienia – przeliczanie objętości na wagę przy użyciu gęstości
@@ -368,8 +368,8 @@
         }
         const weight = finalVolume * density;
         const cost = weight * materialPrice;
-        resultHTML += `<p><strong>Waga kamienia:</strong> ${finalVolume.toFixed(2)} m³ × ${density} t/m³ = ${weight.toFixed(2)} t</p>
-                       <p><strong>Koszt kamienia:</strong> ${weight.toFixed(2)} t × ${materialPrice.toFixed(2)} zł = ${cost.toFixed(2)} zł</p>`;
+        resultHTML += `<p><strong>👉Ilość kamienia do kupienia:</strong> ${finalVolume.toFixed(2)} m³ × ${density} t/m³ = ${weight.toFixed(2)} t</p>
+                       <p><strong>👉Koszt kamienia:</strong> ${weight.toFixed(2)} t × ${materialPrice.toFixed(2)} zł = ${cost.toFixed(2)} zł</p>`;
       }
       
       // Dodanie sekcji z propozycjami innych wpisów (pod wynikami, nad przyciskiem e-booka)
