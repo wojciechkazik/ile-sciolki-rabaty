@@ -372,17 +372,31 @@
                        <p><strong>Koszt kamienia:</strong> ${weight.toFixed(2)} t × ${materialPrice.toFixed(2)} zł = ${cost.toFixed(2)} zł</p>`;
       }
       
-      // Dodanie dodatkowego przycisku/sekcji, jeśli jeszcze nie istnieje
-      if (!document.getElementById('ebookOffer')) {
-        const ebookOfferHTML = 
-          `<div class="button-container" id="ebookOffer">
-            <a href="https://wytwornia-zieleni.pl/rabaty-ogrodowe-gotowe-projekty" target="_blank" class="wycena-button-fiolet">
-              Planujesz ogród🌲?<br>Sprawdź gotowe projekty rabat ogrodowych!
-            </a>
-          </div>
-          <p id="ebookInfo">Z kodem "BLOG-WZ" zniżka na pełną wersję ebooka 🌿✨</p>`;
-        resultHTML += ebookOfferHTML;
-      }
+      // Dodanie sekcji z propozycjami innych wpisów (pod wynikami, nad przyciskiem e-booka)
+      const relatedPostsHTML = `
+        <div id="relatedPosts" class="related-posts" style="margin-top: 20px; padding: 15px; background-color: #f1f1f1; border-radius: 10px;">
+          <p style="font-weight: bold; margin-bottom: 10px;">💡 Sprawdź też:</p>
+          <ul style="list-style-type: disc; padding-left: 20px; margin: 0;">
+            <li><a href="https://wytwornia-zieleni.pl/blog/jak-zaprojektowac-ogrod-przydomowy" target="_blank">Jak zaplanować ogród?</a></li>
+            <li><a href="https://wytwornia-zieleni.pl/blog/zakladanie-ogrodu-krok-po-kroku" target="_blank">Jak wykonać ogród krok po kroku?</a></li>
+            <li><a href="https://wytwornia-zieleni.pl/blog/prace-ziemne-przygotowanie-dzialki-pod-ogrod" target="_blank">Jak wykonać prace ziemne w ogrodzie?</a></li>
+            <li><a href="https://wytwornia-zieleni.pl/blog/zakladanie-ogrodu-5-kosztownych-bledow" target="_blank">5 kosztownych błędów, jak ich uniknąć?</a></li>
+          </ul>
+        </div>
+      `;
+      
+      // Dodanie przycisku do e-booka wraz z informacją
+      const ebookOfferHTML = `
+        <div class="button-container" id="ebookOffer">
+          <a href="https://wytwornia-zieleni.pl/rabaty-ogrodowe-gotowe-projekty" target="_blank" class="wycena-button-fiolet">
+            Planujesz ogród🌲?<br>Sprawdź gotowe projekty rabat ogrodowych!
+          </a>
+        </div>
+        <p id="ebookInfo">Z kodem "BLOG-WZ" zniżka na pełną wersję ebooka 🌿✨</p>
+      `;
+      
+      // Łączenie wszystkich sekcji – wyniki, propozycje wpisów i przycisk e-booka
+      resultHTML += relatedPostsHTML + ebookOfferHTML;
       
       document.getElementById('mulchResult').innerHTML = resultHTML;
       document.getElementById('mulchResult').style.display = 'block';
