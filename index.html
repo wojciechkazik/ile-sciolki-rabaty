@@ -372,11 +372,7 @@
                        <p><strong>Koszt kamienia:</strong> ${weight.toFixed(2)} t × ${materialPrice.toFixed(2)} zł = ${cost.toFixed(2)} zł</p>`;
       }
       
-      // Usunięto wyświetlanie informacji o użytej cenie
-      
-      document.getElementById('mulchResult').innerHTML = resultHTML;
-      document.getElementById('mulchResult').style.display = 'block';
-      
+      // Dodanie dodatkowego przycisku/sekcji, jeśli jeszcze nie istnieje
       if (!document.getElementById('ebookOffer')) {
         const ebookOfferHTML = 
           `<div class="button-container" id="ebookOffer">
@@ -385,8 +381,14 @@
             </a>
           </div>
           <p id="ebookInfo">Z kodem "BLOG-WZ" zniżka na pełną wersję ebooka 🌿✨</p>`;
-        document.getElementById('mulchResult').innerHTML += ebookOfferHTML;
+        resultHTML += ebookOfferHTML;
       }
+      
+      document.getElementById('mulchResult').innerHTML = resultHTML;
+      document.getElementById('mulchResult').style.display = 'block';
+      
+      // Po zakończeniu obliczeń wysyłamy nową wysokość do strony rodzica
+      setTimeout(sendHeightToParent, 300);
     }
     
     // Nasłuchiwanie zmian w polach
@@ -405,16 +407,25 @@
       onMaterialChange();
       updatePriceOption();
     });
-  </script>
-  
-  <!-- Skrypt do dynamicznej zmiany wysokości iframe -->
-  <script>
-    function sendHeight() {
-      const height = document.body.scrollHeight;
-      window.parent.postMessage({ height: height }, "*");
+    
+    // ---------------------------
+    // Funkcja wysyłająca wysokość do strony rodzica (iframe)
+    // ---------------------------
+    function sendHeightToParent() {
+      const bodyHeight = document.body.scrollHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      const height = Math.max(bodyHeight, docHeight);
+      window.parent.postMessage({ iframeHeight: height }, '*');
     }
-    window.addEventListener("load", sendHeight);
-    window.addEventListener("resize", sendHeight);
+    
+    // Wywołanie funkcji po załadowaniu i przy zmianie rozmiaru okna
+    window.addEventListener('load', sendHeightToParent);
+    window.addEventListener('resize', sendHeightToParent);
+    
+    // Wysyłanie wysokości także po kliknięciach
+    document.addEventListener('click', function() {
+      setTimeout(sendHeightToParent, 300);
+    });
   </script>
 </body>
 </html>
